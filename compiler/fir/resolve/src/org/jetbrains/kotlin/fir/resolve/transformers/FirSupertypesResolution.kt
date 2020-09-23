@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.fir.scopes.FirScope
 import org.jetbrains.kotlin.fir.scopes.createImportingScopes
 import org.jetbrains.kotlin.fir.scopes.getNestedClassifierScope
 import org.jetbrains.kotlin.fir.scopes.impl.FirMemberTypeParameterScope
+import org.jetbrains.kotlin.fir.scopes.impl.FirNestedClassifierScope
 import org.jetbrains.kotlin.fir.scopes.impl.nestedClassifierScope
 import org.jetbrains.kotlin.fir.scopes.impl.wrapNestedClassifierScopeWithSubstitutionForSuperType
 import org.jetbrains.kotlin.fir.symbols.impl.FirTypeAliasSymbol
@@ -44,7 +45,7 @@ class FirSupertypeResolverTransformer(
     private val supertypeComputationSession = SupertypeComputationSession()
 
     private val supertypeResolverVisitor = FirSupertypeResolverVisitor(session, supertypeComputationSession, scopeSession)
-    private val applySupertypesTransformer = FirApplySupertypesTransformer(supertypeComputationSession)
+    private val applySupertypesTransformer = FirApplySupertypesTransformer(session, scopeSession, supertypeComputationSession)
 
     override fun <E : FirElement> transformElement(element: E, data: Nothing?): CompositeTransformResult<E> {
         return element.compose()
@@ -74,11 +75,13 @@ fun <F : FirClass<F>> F.runSupertypeResolvePhaseForLocalClass(
     this.accept(supertypeResolverVisitor)
     supertypeComputationSession.breakLoops(session)
 
-    val applySupertypesTransformer = FirApplySupertypesTransformer(supertypeComputationSession)
+    val applySupertypesTransformer = FirApplySupertypesTransformer(session, scopeSession, supertypeComputationSession)
     return this.transform<F, Nothing?>(applySupertypesTransformer, null).single
 }
 
 private class FirApplySupertypesTransformer(
+    private val session: FirSession,
+    private val scopeSession: ScopeSession,
     private val supertypeComputationSession: SupertypeComputationSession
 ) : FirDefaultTransformer<Nothing?>() {
     override fun <E : FirElement> transformElement(element: E, data: Nothing?): CompositeTransformResult<E> {
@@ -129,8 +132,22 @@ private class FirApplySupertypesTransformer(
             "Expected single supertypeRefs, but found ${supertypeRefs.size} in ${typeAlias.symbol.classId}"
         }
 
+        val supertypeRef = supertypeRefs.single()
+        // TODO: Need better handling for type alias with type parameters.
+        if (typeAlias.typeParameters.isEmpty()) {
+            (supertypeRef.firClassLike(session) as? FirRegularClass)?.let {
+                if (it.classId.isNestedClass) {
+                    val outerClassFir = session.firProvider.getFirClassifierByFqName(it.classId.outerClassId!!) as? FirClass<*>
+                    if (outerClassFir != null) {
+                        (it.scopeProvider.getNestedClassifierScope(outerClassFir, session, scopeSession) as? FirNestedClassifierScope)
+                            ?.addTypeAliasedNestedClass(typeAlias, it)
+                    }
+                }
+            }
+        }
+
         // TODO: Replace with an immutable version or transformer
-        typeAlias.replaceExpandedTypeRef(supertypeRefs[0])
+        typeAlias.replaceExpandedTypeRef(supertypeRef)
         typeAlias.replaceResolvePhase(FirResolvePhase.SUPER_TYPES)
 
         return typeAlias.compose()

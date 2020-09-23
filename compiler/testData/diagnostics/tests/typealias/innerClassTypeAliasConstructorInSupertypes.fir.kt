@@ -22,7 +22,7 @@ class Generic<T1> {
     open inner class Generic<T2>
 
     inner class Test1 : GI<T1>()
-    inner class Test2 : <!UNRESOLVED_REFERENCE!>GIInt<!>()
+    inner class Test2 : GIInt()
     inner class Test3 : GIStar()
     inner class Test3a : test.Generic<*>.Inner()
 
