@@ -49,9 +49,8 @@ FILE: unary.kt
 
         lval x2: <implicit> =  {
             lval <receiver>: <implicit> = x#
-            lval <unary-result>: <implicit> = R|<local>/<receiver>|.i#.inc#()
-            R|<local>/<receiver>|.i# = R|<local>/<unary-result>|
-            R|<local>/<unary-result>|
+            R|<local>/<receiver>|.i# = R|<local>/<receiver>|.i#.inc#()
+            R|<local>/<receiver>|.i#
         }
 
     }
@@ -63,9 +62,8 @@ FILE: unary.kt
         }
 
         lval x2: <implicit> =  {
-            lval <unary-result>: <implicit> = arr#.get#(IntegerLiteral(1)).inc#()
-            arr#.set#(IntegerLiteral(1), R|<local>/<unary-result>|)
-            R|<local>/<unary-result>|
+            arr#.set#(IntegerLiteral(1), arr#.get#(IntegerLiteral(1)).inc#())
+            arr#.get#(IntegerLiteral(1))
         }
 
     }
@@ -86,9 +84,8 @@ FILE: unary.kt
         }
 
         lval x2: <implicit> =  {
-            lval <unary-result>: <implicit> = y#.arr#.get#(IntegerLiteral(1)).inc#()
-            y#.arr#.set#(IntegerLiteral(1), R|<local>/<unary-result>|)
-            R|<local>/<unary-result>|
+            y#.arr#.set#(IntegerLiteral(1), y#.arr#.get#(IntegerLiteral(1)).inc#())
+            y#.arr#.get#(IntegerLiteral(1))
         }
 
     }
