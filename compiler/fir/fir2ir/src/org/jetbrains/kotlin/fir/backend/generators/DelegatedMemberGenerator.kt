@@ -243,7 +243,7 @@ internal class DelegatedMemberGenerator(
                         irFactory.createValueParameter(
                             startOffset, endOffset, origin, symbol,
                             valueParameter.name, valueParameter.index, substedType,
-                            null, valueParameter.isCrossinline, valueParameter.isNoinline, false
+                            null, valueParameter.isCrossinline, valueParameter.isNoinline
                         ).also {
                             parameterDescriptor.bind(it)
                             it.parent = this
