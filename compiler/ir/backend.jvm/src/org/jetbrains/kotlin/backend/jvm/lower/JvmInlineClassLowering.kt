@@ -214,7 +214,7 @@ private class JvmInlineClassLowering(private val context: JvmBackendContext) : F
                         // This is safe, since the delegating constructor call precedes all references to "this".
                         override fun visitDelegatingConstructorCall(expression: IrDelegatingConstructorCall): IrExpression {
                             expression.transformChildrenVoid()
-                            return irSet(thisVar.symbol, expression)
+                            return irSetVar(thisVar.symbol, expression)
                         }
 
                         // A constructor body has type unit and may contain explicit return statements.
@@ -453,12 +453,21 @@ private class JvmInlineClassLowering(private val context: JvmBackendContext) : F
 
     override fun visitSetValue(expression: IrSetValue): IrExpression {
         valueMap[expression.symbol]?.let {
-            return IrSetValueImpl(
-                expression.startOffset, expression.endOffset,
-                it.type, it.symbol,
-                expression.value.transform(this@JvmInlineClassLowering, null),
-                expression.origin
-            )
+            return if (it is IrVariable) {
+                IrSetValueImpl(
+                    expression.startOffset, expression.endOffset,
+                    it.type, it.symbol,
+                    expression.value.transform(this@JvmInlineClassLowering, null),
+                    expression.origin
+                )
+            } else {
+                IrSetValueImpl(
+                    expression.startOffset, expression.endOffset,
+                    it.type, (it as IrValueParameter).symbol,
+                    expression.value.transform(this@JvmInlineClassLowering, null),
+                    expression.origin
+                )
+            }
         }
         return super.visitSetValue(expression)
     }

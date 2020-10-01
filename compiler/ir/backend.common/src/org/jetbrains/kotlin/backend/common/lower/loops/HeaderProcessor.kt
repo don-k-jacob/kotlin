@@ -142,7 +142,7 @@ internal abstract class NumericForLoopHeader<T : NumericHeaderInfo>(
                         it.valueParameters.size == 1 &&
                         it.valueParameters[0].type == stepType
             }
-            irSet(
+            irSetVar(
                 inductionVariable.symbol, irCallOp(
                     plusFun.symbol, plusFun.returnType,
                     irGet(inductionVariable),
@@ -469,7 +469,7 @@ internal class WithIndexLoopHeader(
                             it.valueParameters[0].type.isInt()
                 }
                 incrementIndexStatement =
-                    irSet(
+                    irSetVar(
                         indexVariable.symbol, irCallOp(
                             plusFun.symbol, plusFun.returnType,
                             irGet(indexVariable),

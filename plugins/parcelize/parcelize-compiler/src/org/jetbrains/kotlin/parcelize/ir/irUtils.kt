@@ -140,7 +140,7 @@ inline fun IrBlockBuilder.forUntil(upperBound: IrExpression, loopBody: IrBlockBu
         body = irBlock {
             loopBody(indexTemporary)
             val inc = context.irBuiltIns.intClass.getSimpleFunction("inc")!!
-            +irSet(indexTemporary.symbol, irCall(inc).apply {
+            +irSetVar(indexTemporary.symbol, irCall(inc).apply {
                 dispatchReceiver = irGet(indexTemporary)
             })
         }

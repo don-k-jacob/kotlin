@@ -19,6 +19,8 @@ import org.jetbrains.kotlin.ir.builders.declarations.buildFun
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.*
+import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
+import org.jetbrains.kotlin.ir.symbols.IrVariableSymbol
 import org.jetbrains.kotlin.ir.transformStatement
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.dump
@@ -277,7 +279,13 @@ class BlockDecomposerTransformer(
             val composite = expression.value as? IrComposite ?: return expression
 
             return materializeLastExpression(composite) {
-                expression.run { IrSetValueImpl(startOffset, endOffset, type, symbol, it, origin) }
+                expression.run {
+                    if (symbol is IrVariableSymbol) {
+                        IrSetValueImpl(startOffset, endOffset, type, symbol as IrVariableSymbol, it, origin)
+                    } else {
+                        IrSetValueImpl(startOffset, endOffset, type, symbol as IrValueParameterSymbol, it, origin)
+                    }
+                }
             }
         }
 

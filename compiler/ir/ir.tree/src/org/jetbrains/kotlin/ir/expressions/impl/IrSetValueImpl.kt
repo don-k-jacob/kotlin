@@ -20,12 +20,14 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrSetValue
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
+import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
+import org.jetbrains.kotlin.ir.symbols.IrVariableSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 
-class IrSetValueImpl(
+class IrSetValueImpl private constructor(
     override val startOffset: Int,
     override val endOffset: Int,
     override var type: IrType,
@@ -34,20 +36,25 @@ class IrSetValueImpl(
     override val origin: IrStatementOrigin?
 ) : IrSetValue() {
 
-    companion object {
-        private fun isVariableOrAssignable(symbol: IrValueSymbol): Boolean {
-            val declaration = symbol.owner
-            return if (declaration is IrValueParameter) {
-                declaration.isAssignable
-            } else {
-                true
-            }
-        }
-    }
+    constructor(
+        startOffset: Int,
+        endOffset: Int,
+        type: IrType,
+        symbol: IrVariableSymbol,
+        value: IrExpression,
+        origin: IrStatementOrigin?
+    ) : this(startOffset, endOffset, type, symbol as IrValueSymbol, value, origin)
 
-    init {
-        assert(isVariableOrAssignable(symbol)) {
-            "Only IrVariables and assignable IrValueParameters can be set"
+    constructor(
+        startOffset: Int,
+        endOffset: Int,
+        type: IrType,
+        symbol: IrValueParameterSymbol,
+        value: IrExpression,
+        origin: IrStatementOrigin?
+    ) : this(startOffset, endOffset, type, symbol as IrValueSymbol, value, origin) {
+        assert(symbol.owner.isAssignable) {
+            "Only assignable value parameters can be set."
         }
     }
 

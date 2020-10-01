@@ -148,7 +148,7 @@ private class BodyTransformer(
             at(argument)
             // Note that argument can use values of parameters, so it is important that
             // references to parameters are mapped using `parameterToNew`, not `parameterToVariable`.
-            +irSet(parameterToVariable[parameter]!!.symbol, argument)
+            +irSetVar(parameterToVariable[parameter]!!.symbol, argument)
         }
 
         val specifiedParameters = parameterToArgument.map { (parameter, _) -> parameter }.toSet()
@@ -177,7 +177,7 @@ private class BodyTransformer(
                         }
                     }, data = null)
 
-                +irSet(parameterToVariable[parameter]!!.symbol, defaultValue)
+                +irSetVar(parameterToVariable[parameter]!!.symbol, defaultValue)
             }
 
         // Jump to the entry:

@@ -199,7 +199,7 @@ interface IrBuilderExtension {
 
     fun IrBuilderWithScope.setProperty(receiver: IrExpression, property: IrProperty, value: IrExpression): IrExpression {
         return if (property.setter != null)
-            irSet(property.setter!!.returnType, receiver, property.setter!!.symbol, value)
+            irSetVar(property.setter!!.returnType, receiver, property.setter!!.symbol, value)
         else
             irSetField(receiver, property.backingField!!, value)
     }

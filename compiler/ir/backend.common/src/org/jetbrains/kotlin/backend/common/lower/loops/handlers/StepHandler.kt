@@ -114,7 +114,7 @@ internal class StepHandler(
                         stepArgExpression.negate()
                     } else {
                         // Step is already stored in a variable, just negate it.
-                        stepNegation = irSet(stepArgVar.symbol, irGet(stepArgVar).negate())
+                        stepNegation = irSetVar(stepArgVar.symbol, irGet(stepArgVar).negate())
                         irGet(stepArgVar)
                     }
                 }
@@ -145,7 +145,7 @@ internal class StepHandler(
                         stepNegation = irIfThen(
                             context.irBuiltIns.unitType,
                             nestedStepNonPositiveCheck,
-                            irSet(stepArgVar.symbol, irGet(stepArgVar).negate())
+                            irSetVar(stepArgVar.symbol, irGet(stepArgVar).negate())
                         )
                         irGet(stepArgVar)
                     }

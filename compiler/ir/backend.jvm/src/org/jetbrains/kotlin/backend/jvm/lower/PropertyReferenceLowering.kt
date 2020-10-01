@@ -336,7 +336,7 @@ internal class PropertyReferenceLowering(val context: JvmBackendContext) : Class
 
                     expression.setter?.owner?.let { setter ->
                         referenceClass.addOverride(set!!) { arguments ->
-                            irSet(setter.returnType, null, setter.symbol, irGet(arguments.last())).apply {
+                            irSetVar(setter.returnType, null, setter.symbol, irGet(arguments.last())).apply {
                                 setCallArguments(this, arguments)
                             }
                         }

@@ -458,14 +458,26 @@ open class DeepCopyIrTreeWithSymbols(
             mapStatementOrigin(expression.origin)
         ).copyAttributes(expression)
 
-    override fun visitSetValue(expression: IrSetValue): IrSetValue =
-        IrSetValueImpl(
-            expression.startOffset, expression.endOffset,
-            expression.type.remapType(),
-            symbolRemapper.getReferencedValue(expression.symbol),
-            expression.value.transform(),
-            mapStatementOrigin(expression.origin)
-        ).copyAttributes(expression)
+    override fun visitSetValue(expression: IrSetValue): IrSetValue {
+        val symbol = symbolRemapper.getReferencedValue(expression.symbol)
+        return if (symbol is IrVariableSymbol) {
+            IrSetValueImpl(
+                expression.startOffset, expression.endOffset,
+                expression.type.remapType(),
+                symbol,
+                expression.value.transform(),
+                mapStatementOrigin(expression.origin)
+            ).copyAttributes(expression)
+        } else {
+            IrSetValueImpl(
+                expression.startOffset, expression.endOffset,
+                expression.type.remapType(),
+                symbol as IrValueParameterSymbol,
+                expression.value.transform(),
+                mapStatementOrigin(expression.origin)
+            ).copyAttributes(expression)
+        }
+    }
 
     override fun visitGetField(expression: IrGetField): IrGetField =
         IrGetFieldImpl(

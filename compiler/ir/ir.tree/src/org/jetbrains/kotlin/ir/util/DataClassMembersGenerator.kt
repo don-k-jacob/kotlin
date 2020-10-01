@@ -169,7 +169,7 @@ abstract class DataClassMembersGenerator(
             for (property in properties.drop(1)) {
                 val shiftedResult = irCallOp(intTimesSymbol, irIntType, irGet(irResultVar), irInt(31))
                 val irRhs = irCallOp(intPlusSymbol, irIntType, shiftedResult, getHashCodeOfProperty(property))
-                +irSet(irResultVar.symbol, irRhs)
+                +irSetVar(irResultVar.symbol, irRhs)
             }
 
             +irReturn(irGet(irResultVar))

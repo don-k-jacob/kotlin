@@ -108,7 +108,7 @@ class InlineClassLowering(val context: CommonBackendContext) {
 
                             override fun visitSetValue(expression: IrSetValue): IrExpression {
                                 expression.transformChildrenVoid()
-                                parameterMapping[expression.symbol]?.let { return irSet(it.symbol, expression.value) }
+                                parameterMapping[expression.symbol]?.let { return irSetParam(it.symbol, expression.value) }
                                 return expression
                             }
 
@@ -181,7 +181,7 @@ class InlineClassLowering(val context: CommonBackendContext) {
                     override fun visitSetValue(expression: IrSetValue): IrExpression {
                         val valueDeclaration = expression.symbol.owner as? IrValueParameter ?: return super.visitSetValue(expression)
                         expression.transformChildrenVoid()
-                        return context.createIrBuilder(staticMethod.symbol).irSet(
+                        return context.createIrBuilder(staticMethod.symbol).irSetParam(
                             when (valueDeclaration) {
                                 in function.valueParameters -> {
                                     val offset = if (function.extensionReceiverParameter != null) 2 else 1

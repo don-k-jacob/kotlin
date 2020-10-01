@@ -175,7 +175,7 @@ private fun JsCommonBackendContext.fixReferencesToConstructorParameters(irClass:
         override fun visitSetValue(expression: IrSetValue): IrExpression {
             expression.transformChildrenVoid()
             return mapping.enumConstructorOldToNewValueParameters[expression.symbol.owner]?.let {
-                builder.irSet(it.symbol, expression.value)
+                builder.irSetParam(it.symbol, expression.value)
             } ?: expression
         }
     })
